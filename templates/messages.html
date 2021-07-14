@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block head %}
+    <style>
+        * {
+            color: #35979e;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .main-container {
+            width: 95vw;
+            background-color: rgb(115, 255, 201);
+            margin: auto;
+            border-radius: 10px;
+            overflow: auto;
+            margin-top: 3vw;
+            height: 35vw;
+            padding: 1vw;
+            display: flex;
+        }
+
+        .title-container {
+            height: 4vw;
+            width: 15vw;
+            background-color: cyan;
+            border-radius: 10px;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        .main-content {
+            margin-left: 5vw;
+            flex: 1;
+            background-color: rgb(4, 164, 164);
+            border-radius: 10px;
+            padding: 1.5vw;
+        }
+
+        .chat-container {
+            background-color: cyan;
+            border-radius: 10px;
+            height: 100%;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .chat-content {
+            height: 90%;
+            width: 95%;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .new-message-container {
+            margin-top: 0.5vw;
+        }
+
+        input {
+            border-radius: 5px;
+            width: 10vw;
+        }
+
+        .message-part-2 {
+            margin-top: 3px;
+        }
+
+        .navigation-container {
+            height: 3vw;
+            width: 15vw;
+            border: 3px solid cyan;
+            border-radius: 10px;
+            margin-top: 1vw;
+            padding: 7px;
+            display: flex;
+        }
+
+        .back-link-container {
+            margin-left: 1vw;
+        }
+
+        #back-button {
+            height: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #home-button {
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p><strong>{{msg}}</strong></p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="main-container">
+        <div class="header">
+            <div class="title-container">
+                <div class="title-container-inner">
+                    <h2>DM with {{first_name}}</h2>
+                </div>
+            </div>
+            <div class="navigation-container">
+                <div class="home-link-container">
+                    <a href="{{ url_for('portfolio') }}">
+                        <button id="home-button"><img src="{{ url_for('static', filename='images/icons/home.png') }}" alt="home"></button>
+                    </a>
+                </div>
+                <div class="back-link-container">
+                    <a href="{{ url_for('other_user_portfolio', other_user=_with) }}">
+                        <button id="back-button">Back</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="chat-content">
+                    {% for message in messages %}
+                        <div class="message">
+                            <p>
+                                {{message[2]}} | {{message[1]}}
+                                <br>
+                                {{message[0]}}
+                            </p>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="new-message-container">
+                    <div class="send-container-inner">
+                        <input type="text" id="send-input" placeholder="Enter new message..." autofocus>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        String.prototype.format = function() {
+            a = this;
+            for (k in arguments) {
+                a = a.replace("{" + k + "}", arguments[k]);
+            }
+            return a;
+        }
+
+        var socket;
+        $(document).ready(function() {
+            socket = io.connect("/");
+            const chat = $(".chat-content");
+            chat.scrollTop(chat.prop("scrollHeight"));
+
+            socket.on("connect", function() {
+                socket.emit("connected_dm", {
+                    _with: "{{_with}}"
+                });
+            })
+
+            socket.on("new_message", function(msg) {
+                const sender = msg["sender"];
+                const published = msg["published"];
+                const content = msg["content"];
+
+                let newInnerHTML = chat.html();
+                newInnerHTML += "<div class='message'><p>{0} | {1} <br> {2}</p></div>".format(sender, published, content);
+                chat.html(newInnerHTML);
+                chat.scrollTop(chat.prop("scrollHeight"));
+            })
+
+            $("#send-input").bind("keyup", function(event) {
+                if (event.keyCode === 13) {
+                    socket.emit("new_message", {
+                        data: $("#send-input").val()
+                    });
+                    $("#send-input").val("");
+                }
+            })
+        })
+
+    </script>
+{% endblock %}

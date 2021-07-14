@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block head %}
+    <style>
+        * {
+            color: #35979e;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        
+        .main-container {
+            background-color: rgb(115, 255, 201);
+            width: 50vw;
+            margin: auto;
+            padding: 1vw;
+            border-radius: 10px;
+            margin-top: 5vw;
+        }
+
+        .title-container {
+            background-color: aliceblue;
+            padding: 3px;
+            border-radius: 10px;
+            width: 12vw;
+            overflow: auto;
+        }
+
+        .title-container-inner {
+            margin-left: 5px;
+        }
+
+        input {
+            border-radius: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p><strong>{{msg}}</strong></p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="main-container">
+        <div class="title-container">
+            <div class="title-container-inner">
+                <h1>Welcome</h1>
+            </div>
+        </div>
+        <div class="description">
+            <p>
+                <strong>
+                    This is a portfolio website, where you can create your own portfolio using text and images.
+                    You can also look at other user portfolios by searching for their username.
+                    <br>
+                    If you already have an account, you can login. If you don't, start by creating one below.
+                </strong>
+            </p>
+        </div>
+        <br>
+        <div class="form-container">
+            <div class="create-account-container">
+                <form action="/" method="POST">
+                    <h2>Create Account</h2>
+                    <input type="text" placeholder="Enter first name..." name="first_name", required>
+                    <input type="text" placeholder="Enter last name..." name="last_name", required>
+                    <input type="text" placeholder="Enter a username..." name="username" required>
+                    <input type="password" placeholder="Enter a password..." name="password" required>
+                    <input type="password" placeholder="Confirm password..." name="confirm" required>
+                    <p>
+                        <input type="submit" value="Create Account">
+                    </p>
+                </form>
+            </div>
+            <div class="login-container">
+                <form action="/" method="POST">
+                    <h2>Login</h2>
+                    <input type="text" placeholder="Enter username..." name="login_username" required>
+                    <input type="password" placeholder="Enter password..." name="login_password" required>
+                    <p>
+                        <input type="submit" value="Login">
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        String.prototype.format = function() {
+            a = this;
+            for (k in arguments) {
+                a = a.replace("{" + k + "}", arguments[k]);
+            }
+            return a;
+        }
+
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
+{% endblock %}
