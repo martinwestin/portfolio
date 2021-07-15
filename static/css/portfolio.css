@@ -1,0 +1,325 @@
+* {
+    color: #35979e;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.main-container {
+    width: 95vw;
+    background-color: rgb(115, 255, 201);
+    margin: auto;
+    border-radius: 10px;
+    overflow: auto;
+    margin-top: 3vw;
+    height: 45vw;
+    padding: 1vw;
+    display: flex;
+}
+
+.title-container {
+    background-color: aliceblue;
+    border-radius: 10px;
+    width: 15vw;
+    height: 4vw;
+    padding: 0.125vw;
+    overflow: auto;
+}
+
+.profile-picture-container {
+    margin-left: 1vw;
+    background-color: aliceblue;
+    height: 10vw;
+    padding: 1vw;
+    border-radius: 10px;
+    width: 12vw;
+    overflow: auto;
+}
+
+button {
+    border-radius: 5px;
+    background-color: aliceblue;
+    cursor: pointer;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 3px solid #35979e;
+    text-align: left;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+tr:nth-child(even) {
+    background-color: aliceblue;
+}
+
+.title-container-inner {
+    margin-left: 5px;
+}
+
+.profile-picture-outer {
+    border: 3px solid rgb(115, 255, 201);
+    border-radius: 10px;
+    padding: 5px;
+}
+
+#profile-picture {
+    border: 3px solid rgb(115, 255, 201);
+    border-radius: 10px;
+}
+
+.new-pic-container {
+    margin-top: 0.5vw;
+    border: 3px solid rgb(115, 255, 201);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.main-content {
+    height: 40vw;
+    background-color: aliceblue;
+    margin-left: 5vw;
+    border-radius: 10px;
+    width: 100%;
+    padding: 1vw;
+    overflow: auto;
+}
+
+.header {
+    padding: 0.5vw;
+}
+
+.introduction-text-box-container {
+    margin-left: 1vw;
+}
+
+#intro-text-box {
+    border-radius: 10px;
+    border: 3px solid rgb(115, 255, 201);
+}
+
+.save-button {
+    background-color: rgb(115, 255, 201);
+    border-radius: 10px;
+    height: 1.5vw;
+    width: 3vw;
+    margin-top: 0.3vw;
+    padding: 7px;
+}
+
+.merits {
+    height: 20vw;
+    width: 40vw;
+    background-color: rgb(115, 255, 201);
+    padding: 0.5vw;
+    margin-left: 1vw;
+    margin-top: 1vw;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+.user-merits {
+    width: 15vw;
+    height: 7vw;
+    background-color: aliceblue;
+    border-radius: 10px;
+    padding: 0.5vw;
+    overflow: auto;
+}
+
+#merits-auto-complete {
+    height: 5vw;
+    background-color: rgb(48, 205, 189);
+    border-radius: 10px;
+    margin-top: 0.5vw;
+    overflow: auto;
+    flex: 1;
+    margin-left: 1vw;
+    padding: 0.5vw;
+    visibility: hidden;
+}
+
+#users-auto-complete {
+    border: 3px solid aliceblue;
+    border-radius: 10px;
+    height: 7vw;
+    width: 90%;
+    margin-top: 0.5vw;
+    overflow: auto;
+    padding: 0.5vw;
+}
+
+.user-result {
+    margin-left: 0.5vw;
+}
+
+.option {
+    margin-left: 1vw;
+    border: 3px solid aliceblue;
+    width: 70%;
+    border-radius: 10px;
+    padding: 2px;
+    display: flex;
+}
+
+.option-name {
+    flex: 1;
+}
+
+.add-button-container {
+    flex: 1;
+}
+
+.add-button {
+    height: 100%;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.merits-container {
+    margin-left: 1vw;
+}
+
+.new-merit-container {
+    margin-top: 0.5vw;
+    margin-left: 0.5vw;
+}
+
+input {
+    border-radius: 5px;
+}
+
+.main-merits-container {
+    display: flex;
+}
+
+.merit-container-outer {
+    display: flex;
+}
+
+.merit-container {
+    border: 3px solid #35979e;
+    border-radius: 10px;
+    padding: 0.5vw;
+    width: 90%;
+    overflow: auto;
+    display: flex;
+}
+
+.topic-name-container {
+    border: 3px solid #35979e;
+    border-radius: 10px;
+    padding: 0.25vw;
+}
+
+.level-container {
+    margin-left: 0.5vw;
+    border: 3px solid #35979e;
+    border-radius: 10px;
+    padding: 0.25vw;
+}
+
+.change-level-container {
+    display: flex;
+}
+
+.decrease-button {
+    margin-left: 0.25vw;
+}
+
+.search-container {
+    margin-left: 2vw;
+    background-color: rgb(115, 255, 201);
+    border-radius: 10px;
+    padding: 1vw;
+    height: 40%;
+    width: 100%;
+    overflow: auto;
+}
+
+.introduction-text-container {
+    border: 3px solid rgb(115, 255, 201);
+    border-radius: 10px;
+    padding: 0.5vw;
+    width: 10vw;
+    height: 5vw;
+    overflow: auto;
+}
+
+.home-link-container {
+    padding: 0.5vw;
+}
+
+#bg-mask {
+    position: absolute;
+    margin: auto;
+    z-index: 0;
+    visibility: hidden;
+}
+
+#popup-box {
+    position: absolute;
+    margin: auto;
+    padding: 30px;
+    width: 20vw;
+    height: 6vw;
+    background-color: aliceblue;
+    visibility: hidden;
+    border: 3px solid rgb(111, 161, 233);
+    border-radius: 10px;
+    z-index: 1;
+}
+
+.send-message-container {
+    margin-top: 1vw;
+    border: 3px solid rgb(115, 255, 201);
+    border-radius: 10px;
+    height: 2vw;
+    padding: 5px;
+}
+
+.link-messages-button {
+    width: 100%;
+    height: 100%;
+}
+
+.logout-link-container {
+    margin-left: 0.5vw;
+    margin-top: 1vw;
+}
+
+.logout-button {
+    height: 3vw;
+    width: 5vw;
+}
+
+.bottom-container {
+    display: flex;
+}
+
+.education-container {
+    height: 20vw;
+    width: 20vw;
+    padding: 10px;
+    background-color: rgb(115, 255, 201);
+    margin-top: 1vw;
+    border-radius: 10px;
+    margin-left: 1vw;
+    overflow: auto;
+}
+
+.top-container {
+    display: flex;
+}
+
+#subjects-auto-complete {
+    background-color: rgb(48, 205, 189);
+    border-radius: 10px;
+    height: 5vw;
+    overflow: auto;
+    margin-top: 3px;
+    visibility: hidden;
+}

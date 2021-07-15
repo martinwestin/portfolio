@@ -47,8 +47,10 @@ class Messages(DBConnection):
         return self.cur.fetchall()
 
     def fetch_room_id(self, user, _with):
+        self.cur.execute("SELECT * FROM rooms")
         self.cur.execute("SELECT room_id FROM rooms WHERE user_1 = (?) AND user_2 = (?) OR user_1 = (?) AND user_2 = (?)", (user, _with, _with, user))
-        if len(self.cur.fetchall()) == 0:
+        all = self.cur.fetchall()
+        if len(all) == 0:
             self.create_dm_room(user, _with)
 
         self.cur.execute("SELECT room_id FROM rooms WHERE user_1 = (?) AND user_2 = (?) OR user_1 = (?) AND user_2 = (?)", (user, _with, _with, user))
