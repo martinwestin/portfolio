@@ -1,0 +1,29 @@
+* {
+    color: #35979e;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.main-container {
+    background-color: rgb(115, 255, 201);
+    width: 50vw;
+    margin: auto;
+    padding: 1vw;
+    border-radius: 10px;
+    margin-top: 5vw;
+}
+
+.title-container {
+    background-color: aliceblue;
+    padding: 3px;
+    border-radius: 10px;
+    width: 12vw;
+    overflow: auto;
+}
+
+.title-container-inner {
+    margin-left: 5px;
+}
+
+input {
+    border-radius: 5px;
+}
