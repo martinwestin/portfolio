@@ -91,7 +91,6 @@
             width: 100%;
             padding: 1vw;
             overflow: auto;
-            display: flex;
         }
 
         .header {
@@ -138,13 +137,14 @@
 
         #merits-auto-complete {
             height: 5vw;
-            border: 3px solid aliceblue;
+            background-color: rgb(48, 205, 189);
             border-radius: 10px;
             margin-top: 0.5vw;
             overflow: auto;
             flex: 1;
             margin-left: 1vw;
             padding: 0.5vw;
+            visibility: hidden;
         }
 
         #users-auto-complete {
@@ -166,7 +166,7 @@
             border: 3px solid aliceblue;
             width: 70%;
             border-radius: 10px;
-            padding: 5px;
+            padding: 2px;
             display: flex;
         }
 
@@ -290,6 +290,44 @@
             width: 100%;
             height: 100%;
         }
+
+        .logout-link-container {
+            margin-left: 0.5vw;
+            margin-top: 1vw;
+        }
+
+        .logout-button {
+            height: 3vw;
+            width: 5vw;
+        }
+
+        .bottom-container {
+            display: flex;
+        }
+
+        .education-container {
+            height: 20vw;
+            width: 20vw;
+            padding: 10px;
+            background-color: rgb(115, 255, 201);
+            margin-top: 1vw;
+            border-radius: 10px;
+            margin-left: 1vw;
+            overflow: auto;
+        }
+
+        .top-container {
+            display: flex;
+        }
+
+        #subjects-auto-complete {
+            background-color: rgb(48, 205, 189);
+            border-radius: 10px;
+            height: 5vw;
+            overflow: auto;
+            margin-top: 3px;
+            visibility: hidden;
+        }
         
     </style>
     
@@ -312,9 +350,12 @@
                         <h1>My portfolio</h1>
                     {% endif %}
                     {% if not is_owner %}
-                        <h1>{{user}}'s portfolio</h1>
+                        <h2>{{user}}'s portfolio</h2>
                     {% endif %}
                 </div>
+            </div>
+            <div class="logout-link-container">
+                <a href="{{ url_for('logout') }}"><button class="logout-button">Logout</button></a>
             </div>
             {% if not is_owner %}
                 <div class="home-link-container">
@@ -340,10 +381,12 @@
                             {% if has_profile_pic %}
                                 <img src="{{ url_for('static', filename='images/user_pic' + profile_pic_id + '.png') }}" alt="profile picture" height="50" id="profile-picture">
                             {% endif %}
-                            {% if not has_profile_pic %}
-                                <div class="no-profile-pic">
-                                    <h3>{{user}} has no profile picture</h3>
-                                </div>
+                            {% if not is_owner %}
+                                {% if not has_profile_pic %}
+                                    <div class="no-profile-pic">
+                                        <h3>{{user}} has no profile picture</h3>
+                                    </div>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -367,123 +410,180 @@
         </div>
         <div class="main-content">
             <div class="user-content">
-                <div id="popup-box">
-                    <div id="bg-mask">
-                        <div id="popup-content">
-                        </div>
-                        <div id="close-button-container">
-                            <button onclick="popup.hide()">Ok</button>
+                <div class="top-container">
+                    
+                    <div id="popup-box">
+                        <div id="bg-mask">
+                            <div id="popup-content">
+                            </div>
+                            <div id="close-button-container">
+                                <button onclick="popup.hide()">Ok</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="header">
-                    <div class="subtitle-container">
-                        {% if is_owner %}
-                            <h2>Write a bit about yourself</h2>
-                        {% endif %}
-                        {% if not is_owner %}
-                            <h2>About {{user}}</h2>
-                        {% endif %}
-                    </div>
-                    {% if is_owner %}
-                        <div class="description">
-                            <p>Here you can introduce yourself, so that other people that go to your profile get to know you better.</p>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="about-container">
-                    <div class="introduction-text-box-container">
-                        {% if is_owner %}
-                            <textarea id="intro-text-box" cols="30" rows="5" placeholder="Tell us about yourself..."></textarea>
-                            <div class="submit-container">
-                                <div class="save-button">
-                                    <button id="save-introduction">Save</button>
+                    <div class="top-left-container">
+                        <div class="header">
+                            <div class="subtitle-container">
+                                {% if is_owner %}
+                                    <h2>Write a bit about yourself</h2>
+                                {% endif %}
+                                {% if not is_owner %}
+                                    <h2>About {{user}}</h2>
+                                {% endif %}
+                            </div>
+                            {% if is_owner %}
+                                <div class="description">
+                                    <p>Here you can introduce yourself, so that other people that go to your profile get to know you better.</p>
                                 </div>
-                            </div>
-                        {% endif %}
-                        {% if not is_owner %}
-                            <div class="introduction-text-container">
-                                <p>{{intro}}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="merits">
-                    <div class="description">
-                        <div class="subtitle-container">
-                            {% if is_owner %}
-                                <h2>Your merits</h2>
-                            {% endif %}
-                            {% if not is_owner %}
-                                <h2>{{user}}'s Merits</h2>
                             {% endif %}
                         </div>
-                        <div style="margin-left: 0.5vw;">
-                            {% if is_owner %}
-                                <p>
-                                    Add different programming skills that you possess and at what level
-                                </p>
-                            {% endif %}
-                            {% if not is_owner %}
-                                <p>
-                                    {{user}}'s programming skills and merits
-                                </p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="main-merits-container">
-                        <div class="merits-container">
-                            <div class="user-merits">
-                                {% for topic in topics %}
-                                    <div class="merit-container-outer" id="{{topic[0]}}">
-                                        {% if is_owner %}
-                                            <div class="delete-button-container">
-                                                <button class="delete-button" onclick="delete_merit('{{topic[0]}}')">
-                                                    <img src="{{ url_for('static', filename='images/icons/delete.png') }}" alt="delete">
-                                                </button>
-                                            </div>
-                                        {% endif %}
-                                        <div class="merit-container">
-                                            <div class="topic-name-container"><p>{{topic[0]}}</p></div>
-                                            <div class="level-container">
-                                                <p>{{topic[1]}}</p>
-                                                {% if is_owner %}
-                                                    <div class="change-level-container">
-                                                        <div class="improve-level">
-                                                            <button class="improve-button" onclick="change_level(1, '{{topic[0]}}', '{{topic[1]}}')">▲</button>
-                                                        </div>
-                                                        <div class="decrease-level">
-                                                            <button class="decrease-button" onclick="change_level(-1, '{{topic[0]}}', '{{topic[1]}}')">▼</button>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
+                        <div class="about-container">
+                            <div class="introduction-text-box-container">
+                                {% if is_owner %}
+                                    <textarea id="intro-text-box" cols="30" rows="5" placeholder="Tell us about yourself..."></textarea>
+                                    <div class="submit-container">
+                                        <div class="save-button">
+                                            <button id="save-introduction">Save</button>
                                         </div>
-                                        <br>
                                     </div>
-                                {% endfor %}
+                                {% endif %}
+                                {% if not is_owner %}
+                                    <div class="introduction-text-container">
+                                        <p>{{intro}}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-container">
+                        <div class="description">
+                            <p>Search for other users with their username</p>
+                        </div>
+                        <div class="main-search-container">
+                            <div class="search-box-container">
+                                <input type="text" id="search-user" placeholder="Search...">
+                            </div>
+                            <div id="users-auto-complete"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-container">
+                    <div class="merits">
+                        <div class="description">
+                            <div class="subtitle-container">
+                                {% if is_owner %}
+                                    <h2>Your merits</h2>
+                                {% endif %}
+                                {% if not is_owner %}
+                                    <h2>{{user}}'s Merits</h2>
+                                {% endif %}
+                            </div>
+                            <div style="margin-left: 0.5vw;">
+                                {% if is_owner %}
+                                    <p>
+                                        Add different programming skills that you possess and at what level
+                                    </p>
+                                {% endif %}
+                                {% if not is_owner %}
+                                    <p>
+                                        {{user}}'s programming skills and merits
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="main-merits-container">
+                            <div class="merits-container">
+                                <div class="user-merits">
+                                    {% for topic in topics %}
+                                        <div class="merit-container-outer" id="{{topic[0]}}">
+                                            {% if is_owner %}
+                                                <div class="delete-button-container">
+                                                    <button class="delete-button" onclick="deleteMerit('{{topic[0]}}')">
+                                                        <img src="{{ url_for('static', filename='images/icons/delete.png') }}" alt="delete">
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                            <div class="merit-container">
+                                                <div class="topic-name-container"><p>{{topic[0]}}</p></div>
+                                                <div class="level-container">
+                                                    <p>{{topic[1]}}</p>
+                                                    {% if is_owner %}
+                                                        <div class="change-level-container">
+                                                            <div class="improve-level">
+                                                                <button class="improve-button" onclick="changeLevel(1, '{{topic[0]}}', '{{topic[1]}}')">▲</button>
+                                                            </div>
+                                                            <div class="decrease-level">
+                                                                <button class="decrease-button" onclick="changeLevel(-1, '{{topic[0]}}', '{{topic[1]}}')">▼</button>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if is_owner %}
+                                    <div class="new-merit-container">
+                                        <input type="text" id="new-merit" placeholder="Search...">
+                                    </div>
+                                {% endif %}
                             </div>
                             {% if is_owner %}
-                                <div class="new-merit-container">
-                                    <input type="text" id="new-merit" placeholder="Search...">
-                                </div>
+                                <div id="merits-auto-complete"></div>
                             {% endif %}
                         </div>
+                    </div>
+                    <div class="education-container">
+                        <div class="subtitle-container">
+                            <div class="education-subtitle-inner">
+                                <h2>Education</h2>
+                            </div>
+                        </div>
+                        <div class="description">
+                            {% if is_owner %}
+                                <p>Add information about your education</p>
+                            {% endif %}
+                            {% if not is_owner %}
+                                <p>{{user}}'s education</p>
+                            {% endif %}
+                        </div>
+                        <div class="user-merits">
+                            {% for topic in education %}
+                                <div class="merit-container-outer" id="{{topic[0]}}">
+                                    {% if is_owner %}
+                                        <div class="delete-button-container">
+                                            <button class="delete-button" onclick="deleteEducationMerit('{{topic[0]}}')">
+                                                <img src="{{ url_for('static', filename='images/icons/delete.png') }}" alt="delete">
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                    <div class="merit-container">
+                                        <div class="topic-name-container"><p>{{topic[0]}}</p></div>
+                                        <div class="level-container">
+                                            <p>{{topic[1]}}</p>
+                                            {% if is_owner %}
+                                                <div class="change-level-container">
+                                                    <div class="improve-level">
+                                                        <button class="improve-button" onclick="changeEducationLevel(1, '{{topic[0]}}', '{{topic[1]}}')">▲</button>
+                                                    </div>
+                                                    <div class="decrease-level">
+                                                        <button class="decrease-button" onclick="changeEducationLevel(-1, '{{topic[0]}}', '{{topic[1]}}')">▼</button>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                         {% if is_owner %}
-                            <div id="merits-auto-complete"></div>
+                            <div class="new-merit-container">
+                                <input type="text" id="new-education-topic" placeholder="Search...">
+                                <div id="subjects-auto-complete"></div>
+                            </div>
                         {% endif %}
                     </div>
-                </div>
-            </div>
-            <div class="search-container">
-                <div class="description">
-                    <p>Search for other users with their username</p>
-                </div>
-                <div class="main-search-container">
-                    <div class="search-box-container">
-                        <input type="text" id="search-user" placeholder="Search...">
-                    </div>
-                    <div id="users-auto-complete"></div>
                 </div>
             </div>
         </div>
@@ -503,6 +603,7 @@
             constructor(content=null) {
                 this.content = content
             }
+            
             config(content) {
                 this.content = content
             }
@@ -522,14 +623,22 @@
             }
         }
 
+        function showElement(elementId) {
+            document.getElementById(elementId).style.visibility = "visible";
+        }
+
         let popup = new PopupBox();
 
         var socket;
-        let array = ['AWS', 'AngularJS', 'Back-end programming', 'C', 'C#', 'C++', 'CSS', 'Django', 'Firebase', 'Flask', 'Front-end programming', 'Game Development', 'GoLang', 'HTML', 'Java', 'JavaScript', 'Kotlin', 'MongoDB', 'MySQL', 'Node.js', 'PHP', 'Perl', 'PostgreSQL', 'PowerShell', 'Python', 'Python 2', 'Python 3', 'R', 'React', 'Ruby', 'Rust', 'SQL', 'Scala', 'Swift', 'Unity', 'Unreal Engine', 'jQuery'];
+        let topicsArray = ['AWS', 'AngularJS', 'Back-end programming', 'C', 'C#', 'C++', 'CSS', 'Django', 'Firebase', 'Flask', 'Front-end programming', 'Game Development', 'GoLang', 'HTML', 'Java', 'JavaScript', 'Kotlin', 'MongoDB', 'MySQL', 'Node.js', 'PHP', 'Perl', 'PostgreSQL', 'PowerShell', 'Python', 'Python 2', 'Python 3', 'R', 'React', 'Ruby', 'Rust', 'SQL', 'Scala', 'Swift', 'Unity', 'Unreal Engine', 'jQuery'];
+        let subjectsArray = ['Accounting', 'Aeronautical Engineering', 'Architecture', 'Art', 'Business', 'Computer Science & Information Systems', 'Design', 'Economics', 'Finance', 'Law', 'Management Studies', 'Manufacturing Engineering', 'Mechanical Engineering', 'Medicine']
 
         $(document).ready(function() {
             const introduction = "{{intro}}";
             $("#intro-text-box").val(introduction);
+
+            const educationContainer = $(".education-container");
+            educationContainer.scrollTop(educationContainer.prop("scrollHeight"));
 
             socket = io.connect("/");
 
@@ -537,13 +646,14 @@
                 location.reload();
             })
 
-            socket.on("delete_merit_response", function(msg) {
-                $("#{0}".format(msg["topic"])).remove();
-            })
-
             socket.on("non_valid_file", function() {
                 popup.config("This image file is not valid. It has to have one of the following extenstions: .jpg, .png, .jpeg, .gif");
                 popup.show();
+            })
+
+            socket.on("has_already_added", function(msg) {
+                popup.config("You have already added this {0}. You cannot add it again.".format(msg["type"]));
+                popup.show()
             })
 
             socket.on("search_response", function(msg) {
@@ -576,8 +686,10 @@
                 });
             })
             let input = $("#new-merit");
+            let newEducationTopic = $("#new-education-topic");
             let user_search = $("#search-user");
             const auto_complete_div = $("#merits-auto-complete");
+            const subjects_auto_complete = $("#subjects-auto-complete");
 
             user_search.bind("keyup", function(event) {
                 if (event.keyCode === 13) {
@@ -588,22 +700,23 @@
             })
 
             input.bind("keyup", function(event) {
+                showElement("merits-auto-complete");
                 let newInnerHTML = "";
                 if (input.val().length != 0) {
                 
-                    let relevantOptions = auto_complete(array, input.val());
+                    let relevantOptions = autoComplete(topicsArray, input.val());
                     for (const element in relevantOptions) {
                         const option = relevantOptions[element];
                         newInnerHTML += "<div class='option'><div class='option-name'><p>{0}</p></div>".format(option);
-                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='click_topic({0})'>Add</button></div>".format(array.indexOf(option));
+                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='click_topic({0})'>Add</button></div>".format(topicsArray.indexOf(option));
                         newInnerHTML += "</div>";
                     }
                     auto_complete_div.html(newInnerHTML);
                 } else {
-                    for (const element in array) {
-                        const option = array[element];
+                    for (const element in topicsArray) {
+                        const option = topicsArray[element];
                         newInnerHTML += "<div class='option'><div class='option-name'><p>{0}</p></div>".format(option);
-                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='click_topic({0})'>Add</button></div>".format(array.indexOf(option));
+                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='click_topic({0})'>Add</button></div>".format(topicsArray.indexOf(option));
                         newInnerHTML += "</div>";
                     }
                     auto_complete_div.html(newInnerHTML);
@@ -611,21 +724,65 @@
             })
 
             input.mousedown(function() {
+                showElement("merits-auto-complete");
                 if (input.val().length == 0) {
                     auto_complete_div.html("");
                     let newInnerHTML = "";
-                    for (const element in array) {
-                        const option = array[element];
+                    for (const element in topicsArray) {
+                        const option = topicsArray[element];
                         newInnerHTML += "<div class='option'><div class='option-name'><p>{0}</p></div>".format(option);
-                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='click_topic({0})'>Add</button></div>".format(array.indexOf(option));
+                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='click_topic({0})'>Add</button></div>".format(topicsArray.indexOf(option));
                         newInnerHTML += "</div>";
                     }
                     auto_complete_div.html(newInnerHTML);
                 }
             })
+
+            newEducationTopic.bind("keyup", function(event) {
+                showElement("subjects-auto-complete");
+                let newInnerHTML = "";
+
+                if (newEducationTopic.val().length != 0) {
+                    let relevantOptions = autoComplete(subjectsArray, newEducationTopic.val());
+                    for (const element in relevantOptions) {
+                        const option = relevantOptions[element];
+                        newInnerHTML += "<div class='option'><div class='option-name'><p>{0}</p></div>".format(option);
+                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='clickEducationTopic({0})'>Add</button></div>".format(subjectsArray.indexOf(option));
+                        newInnerHTML += "</div>";
+                    }
+                    subjects_auto_complete.html(newInnerHTML);
+
+                } else {
+                    for (const element in subjectsArray) {
+                        const option = subjectsArray[element];
+                        newInnerHTML += "<div class='option'><div class='option-name'><p>{0}</p></div>".format(option);
+                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='clickEducationTopic({0})'>Add</button></div>".format(subjectsArray.indexOf(option));
+                        newInnerHTML += "</div>";
+                    }
+                    subjects_auto_complete.html(newInnerHTML);
+                }
+            })
+
+            newEducationTopic.mousedown(function() {
+                showElement("subjects-auto-complete");
+                if (newEducationTopic.val().length == 0) {
+                    subjects_auto_complete.html("");
+                    let newInnerHTML = "";
+                    
+                    for (const element in subjectsArray) {
+                        const option = subjectsArray[element];
+                        newInnerHTML += "<div class='option'><div class='option-name'><p>{0}</p></div>".format(option);
+                        newInnerHTML += "<div class='add-button-container'><button class='add-button' onclick='clickEducationTopic({0})'>Add</button></div>".format(subjectsArray.indexOf(option));
+                        newInnerHTML += "</div>";
+                    }
+                    subjects_auto_complete.html(newInnerHTML);
+                }
+            })
+
+
         })
 
-        function auto_complete(options, value) {
+        function autoComplete(options, value) {
             let relevant = [];
             for (const element in options) {
                 if (options[element].toLowerCase() == value.toLowerCase() || options[element].toLowerCase().includes(value.toLowerCase())) {
@@ -636,13 +793,20 @@
         }
 
         function click_topic(index) {
-            const topic = array[index];
+            const topic = topicsArray[index];
             socket.emit("new_topic", {
                 data: topic
             });
         }
 
-        function change_level(type, topic, current) {
+        function clickEducationTopic(index) {
+            const topic = subjectsArray[index];
+            socket.emit("new_education_merit", {
+                data: topic
+            });
+        }
+
+        function changeLevel(type, topic, current) {
             // type --> improve or decrease.
             // -1 --> decrease, 1 --> improve
             socket.emit("change_level", {
@@ -652,8 +816,24 @@
             });
         }
 
-        function delete_merit(topic) {
+        function changeEducationLevel(type, topic, current) {
+            // type --> improve or decrease.
+            // -1 --> decrease, 1 --> improve
+            socket.emit("change_education_level", {
+                type: type,
+                topic: topic,
+                current: current
+            });
+        }
+
+        function deleteMerit(topic) {
             socket.emit("delete_merit", {
+                topic: topic
+            });
+        }
+
+        function deleteEducationMerit(topic) {
+            socket.emit("delete_education_merit", {
                 topic: topic
             });
         }

@@ -2,19 +2,21 @@ from flask import Flask, render_template, redirect, url_for, session, request
 from flask.helpers import flash
 from flask_socketio import SocketIO, emit
 from user_models import DBModels
-from user_information import Introduction, Topics
+from user_information import Introduction, Topics, Education
 from direct_messages import Message, Messages
 import hashlib
 from datetime import date
 
 
 app = Flask(__name__)
+
 app.config["SECRET_KEY"] = b'Y\xbe\xbf7\xd7\x16\xcf\xee2z$\xae1\xca\x84\x890\x84=~@\xae\xabP'
 socketio = SocketIO(app)
 
 models_instance = DBModels()
 user_info_instance = Introduction()
 topics_instance = Topics()
+education_instance = Education()
 messages_instance = Messages()
 
 active_rooms = {}
@@ -29,13 +31,18 @@ def index():
             username = request.form["username"]
             password = request.form["password"]
             confirm = request.form["confirm"]
+            question = request.form["question"]
+            answer = request.form["answer"]
             if models_instance.username_available(username):
                 if password == confirm:
                     m = hashlib.sha512()
                     m.update(bytes(password, "utf-8"))
                     password = models_instance.clean(m.digest())
+                    m = hashlib.sha512()
+                    m.update(bytes(answer.lower(), "utf-8"))
+                    answer = models_instance.clean(m.digest())
 
-                    models_instance.create_user(first_name, last_name, username, password)
+                    models_instance.create_user(first_name, last_name, username, password, question, answer)
                     flash("Account created. You can now login.")
                     return render_template("index.html")
 
@@ -60,6 +67,11 @@ def index():
 
     return render_template("index.html")
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
 @app.route("/my_portfolio")
 def portfolio():
     if "user" in session:
@@ -67,10 +79,11 @@ def portfolio():
         has_profile_pic = models_instance.user_has_profile_picture(user)
         profile_pic_id = models_instance.fetch_profile_picture_id(user) if has_profile_pic else None
         added_topics = topics_instance.fetch_added(user)
+        education = education_instance.fetch_added(user)
         if not user_info_instance.has_introduction(user):
             user_info_instance.update_introduction(user, "")
 
-        return render_template("portfolio.html", intro=user_info_instance.fetch_introduction(user), has_profile_pic=has_profile_pic, profile_pic_id=str(profile_pic_id), topics=added_topics, is_owner=True)
+        return render_template("portfolio.html", intro=user_info_instance.fetch_introduction(user), has_profile_pic=has_profile_pic, profile_pic_id=str(profile_pic_id), topics=added_topics, education=education, is_owner=True)
     
     flash("You have been logged out!")
     return redirect(url_for("index"))
@@ -85,10 +98,11 @@ def other_user_portfolio(other_user):
                 has_profile_pic = models_instance.user_has_profile_picture(other_user)
                 profile_pic_id = models_instance.fetch_profile_picture_id(other_user) if has_profile_pic else None
                 added_topics = topics_instance.fetch_added(other_user)
+                education = education_instance.fetch_added(other_user)
                 if not user_info_instance.has_introduction(other_user):
                     user_info_instance.update_introduction(other_user, "")
 
-                return render_template("portfolio.html", intro=user_info_instance.fetch_introduction(other_user), has_profile_pic=has_profile_pic, profile_pic_id=str(profile_pic_id), topics=added_topics, is_owner=False, user=models_instance.fetch_first_name(other_user), username=other_user)
+                return render_template("portfolio.html", intro=user_info_instance.fetch_introduction(other_user), has_profile_pic=has_profile_pic, profile_pic_id=str(profile_pic_id), topics=added_topics, education=education, is_owner=False, user=models_instance.fetch_first_name(other_user), username=other_user)
             return redirect(url_for("portfolio"))
 
         return "The requested user could not be found."
@@ -138,8 +152,9 @@ def new_merit(msg):
         user = session["user"]
         if not topics_instance.has_added(user, topic):
             topics_instance.add(user, topic)
-        
-        emit("reload", room=request.sid)
+            emit("reload", room=request.sid)
+        else:
+            emit("has_already_added", {"type": "merit"}, room=request.sid)
 
 
 @socketio.on("change_level")
@@ -156,6 +171,19 @@ def change_level(msg):
             emit("reload", room=request.sid)
 
 
+@socketio.on("change_education_level")
+def change_education_level(msg):
+    if "user" in session:
+        to = msg["type"]
+        topic = msg["topic"]
+        current_level = msg["current"]
+        user = session["user"]
+        current_index = education_instance.levels.index(current_level)
+        if current_index + to < 6 and current_index + to > -1:
+            education_instance.change_level(user, topic, current_index + to)
+            emit("reload", room=request.sid)
+
+
 @socketio.on("delete_merit")
 def delete_merit(msg):
     if "user" in session:
@@ -164,7 +192,28 @@ def delete_merit(msg):
 
         if topics_instance.has_added(user, topic):
             topics_instance.delete(user, topic)
-            emit("delete_merit_response", {"topic": topic}, room=request.sid)
+            emit("reload", room=request.sid)
+
+@socketio.on("delete_education_merit")
+def delete_education_merit(msg):
+    if "user" in session:
+        topic = msg["topic"]
+        user = session["user"]
+        if education_instance.has_added(user, topic):
+            education_instance.delete(user, topic)
+            emit("reload", room=request.sid)
+
+
+@socketio.on("new_education_merit")
+def new_education_merit(msg):
+    if "user" in session:
+        topic = msg["data"]
+        user = session["user"]
+        if not education_instance.has_added(user, topic):
+            education_instance.add(user, topic)
+            emit("reload", room=request.sid)
+        else:
+            emit("has_already_added", {"type": "educational merit"}, room=request.sid)
 
 
 @socketio.on("user_search")

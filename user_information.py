@@ -61,3 +61,36 @@ class Topics:
     def change_level(self, user, topic, to):
         self.cur.execute("UPDATE user_topics SET level = (?) WHERE topic = (?) AND user = (?)", (to, topic, user))
         self.con.commit()
+
+
+class Education:
+    def __init__(self):
+        self.con = sqlite3.connect("user_information.db", check_same_thread=False)
+        self.cur = self.con.cursor()
+        self.levels = ["Associate", "Bachelor", "First Professional", "Master", "Advanced Intermediate", "PhD"]
+
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS education_topics (
+            user text not null,
+            education text not null,
+            level integer not null
+        )""")
+    
+    def has_added(self, user, topic):
+        self.cur.execute("SELECT * FROM education_topics WHERE user = (?) AND education = (?)", (user, topic))
+        return len(self.cur.fetchall()) == 1
+
+    def add(self, user, topic):
+        self.cur.execute("INSERT INTO education_topics VALUES (?, ?, ?)", (user, topic, 0))
+        self.con.commit()
+    
+    def delete(self, user, topic):
+        self.cur.execute("DELETE FROM education_topics WHERE user = (?) AND education = (?)", (user, topic))
+        self.con.commit()
+
+    def fetch_added(self, user):
+        self.cur.execute("SELECT * FROM education_topics WHERE user = (?)", (user,))
+        return list(map(lambda x: (x[1], self.levels[x[2]]), self.cur.fetchall()))
+    
+    def change_level(self, user, topic, to):
+        self.cur.execute("UPDATE education_topics SET level = (?) WHERE education = (?) AND user = (?)", (to, topic, user))
+        self.con.commit()

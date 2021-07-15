@@ -16,7 +16,9 @@ class DBModels:
             first_name text not null,
             last_name text not null,
             username text not null,
-            password text not null
+            password text not null,
+            question text not null,
+            answer text not null
         )""")
 
         self.cur.execute("""CREATE TABLE IF NOT EXISTS images (
@@ -24,8 +26,8 @@ class DBModels:
             image_id integer primary key autoincrement
         )""")
     
-    def create_user(self, first_name, last_name, username, password):
-        self.cur.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (first_name, last_name, username, password))
+    def create_user(self, first_name, last_name, username, password, question, answer):
+        self.cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (first_name, last_name, username, password, question, answer))
         self.con.commit()
     
     def successful_login(self, username, password):

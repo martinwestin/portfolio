@@ -2,7 +2,7 @@ import sqlite3
 from datetime import date
 
 
-class DB:
+class DBConnection:
     def __init__(self):
         self.con = sqlite3.connect("messages.db", check_same_thread=False)
         self.cur = self.con.cursor()
@@ -11,7 +11,8 @@ class DB:
             content text not null,
             sent_date text not null,
             sender text not null,
-            room_id integer
+            room_id intege not null,
+            message_id integer primary key autoincrement
         )""")
 
         self.cur.execute("""CREATE TABLE IF NOT EXISTS rooms (
@@ -21,7 +22,7 @@ class DB:
         )""")
 
 
-class Message(DB):
+class Message(DBConnection):
     def __init__(self, content, sender):
         super().__init__()
         self.content = content
@@ -29,11 +30,11 @@ class Message(DB):
 
     def add(self, room_id):
         current_date = date.today()
-        self.cur.execute("INSERT INTO messages VALUES (?, ?, ?, ?)", (self.content, current_date, self.sender, room_id))
+        self.cur.execute("INSERT INTO messages VALUES (?, ?, ?, ?, ?)", (self.content, current_date, self.sender, room_id, None))
         self.con.commit()
 
 
-class Messages(DB):
+class Messages(DBConnection):
     def __init__(self):
         super().__init__()
     
