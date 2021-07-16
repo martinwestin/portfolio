@@ -21,6 +21,10 @@ messages_instance = Messages()
 
 active_rooms = {}
 
+def fetch_hashed(string):
+    m = hashlib.sha512()
+    m.update(bytes(string, "utf-8"))
+    return models_instance.clean(m.digest())
 
 @app.route("/", methods=["POST", "GET"])
 def index():
@@ -35,12 +39,8 @@ def index():
             answer = request.form["answer"]
             if models_instance.username_available(username):
                 if password == confirm:
-                    m = hashlib.sha512()
-                    m.update(bytes(password, "utf-8"))
-                    password = models_instance.clean(m.digest())
-                    m = hashlib.sha512()
-                    m.update(bytes(answer.lower(), "utf-8"))
-                    answer = models_instance.clean(m.digest())
+                    password = fetch_hashed(password)
+                    answer = fetch_hashed(answer)
 
                     models_instance.create_user(first_name, last_name, username, password, question, answer)
                     flash("Account created. You can now login.")
@@ -54,10 +54,7 @@ def index():
         except:
             username = request.form["login_username"]
             password = request.form["login_password"]
-            m = hashlib.sha512()
-            m.update(bytes(password, "utf-8"))
-            password = models_instance.clean(m.digest())
-
+            password = fetch_hashed(password)
             if models_instance.successful_login(username, password):
                 session["user"] = username
                 return redirect(url_for("portfolio"))
@@ -66,6 +63,75 @@ def index():
             return render_template("index.html")
 
     return render_template("index.html")
+
+@app.route("/reset_password", methods=["POST", "GET"])
+def reset_password():
+    if request.method == "POST":
+        try:
+            # the user has entered username
+            username = request.form["enter-username"]
+            if models_instance.user_exists(username):
+                session["entered_username"] = username
+                question = models_instance.fetch_user_question(username)
+                question = " ".join(list(map(lambda x: x.title() if question.split(" ").index(x) == 0 else x.lower(), question.split(" "))))
+                return render_template("reset_password.html", has_entered_username=True, question=question)
+
+            flash(f"User with username \"{username}\" could not be found.")
+            return render_template("reset_password.html", has_entered_username=False, question=None)
+
+        except:
+            try:
+                if "entered_username" in session:
+                    # change user
+                    change_username = request.form["change-user"]
+                    question = models_instance.fetch_user_question(session["entered_username"])
+                    question = " ".join(list(map(lambda x: x.title() if question.split(" ").index(x) == 0 else x.lower(), question.split(" "))))
+                    if models_instance.user_exists(change_username):
+                        session["entered_username"] = change_username
+                        question = models_instance.fetch_user_question(change_username)
+                        question = " ".join(list(map(lambda x: x.title() if question.split(" ").index(x) == 0 else x.lower(), question.split(" "))))
+                        print(change_username, session["entered_username"])
+                        return render_template("reset_password.html", has_entered_username=True, question=question)
+
+                    flash(f"User with username \"{username}\" could not be found.")
+                    return render_template("reset_password.html", has_entered_username=True, question=question)
+
+                return render_template("reset_password.html", has_entered_username=False, question=None)
+
+            except:
+                if "entered_username" in session:
+                    # answer to question
+                    question = models_instance.fetch_user_question(session["entered_username"])
+                    question = " ".join(list(map(lambda x: x.title() if question.split(" ").index(x) == 0 else x.lower(), question.split(" "))))
+                    answer = request.form["question-answer"]
+                    answer = fetch_hashed(answer.lower())
+                    is_correct = answer == models_instance.fetch_user_answer(session["entered_username"])
+                    if is_correct:
+                        new_password = request.form["new-password"]
+                        confirm = request.form["confirm-password"]
+                        if new_password == confirm:
+                            models_instance.change_password(session["entered_username"], fetch_hashed(new_password))
+                            flash("Password changed. You can now login.")
+                            return redirect(url_for("index"))
+
+                        flash("Make sure that both passwords match.")
+                        return render_template("reset_password.html", has_entered_username=True, question=question)
+                    
+                    flash("Incorrect answer to the question.")
+                    return render_template("reset_password.html", has_entered_username=True, question=question)
+                
+                # has not entered a user yet
+                return render_template("reset_password.html", has_entered_username=False, question=None)
+
+    
+    has_entered = False
+    question = None
+    if "entered_username" in session:
+        has_entered = True
+        question = models_instance.fetch_user_question(session["entered_username"])
+
+    return render_template("reset_password.html", has_entered_username=has_entered, question=question)
+
 
 @app.route("/logout")
 def logout():

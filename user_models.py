@@ -101,3 +101,16 @@ class DBModels:
         return list(map(lambda x: x[2], list(filter(lambda x: SequenceMatcher(None, searched.lower(), " ".join([x[0], x[1]]).lower()).ratio() >= 0.8 or 
         SequenceMatcher(None, searched.lower(), x[0].lower()).ratio() >= 0.8 or SequenceMatcher(None, searched.lower(), x[1].lower()).ratio() >= 0.8
         or searched.lower() in " ".join([x[0], x[1]]).lower(), self.cur.fetchall()))))
+    
+    def fetch_user_question(self, user):
+        self.cur.execute("SELECT question FROM users WHERE username = (?)", (user,))
+        return self.cur.fetchone()[0]
+    
+    def fetch_user_answer(self, user):
+        self.cur.execute("SELECT answer FROM users WHERE username = (?)", (user,))
+        return self.cur.fetchone()[0]
+    
+    def change_password(self, user, new_password):
+        self.cur.execute("UPDATE users SET password = (?) WHERE username = (?)", (new_password, user))
+        self.con.commit()
+        
